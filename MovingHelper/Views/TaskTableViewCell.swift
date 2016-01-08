@@ -13,13 +13,22 @@ public class TaskTableViewCell: UITableViewCell {
   @IBOutlet var titleLabel: UILabel!
   @IBOutlet var notesLabel: UILabel!
   @IBOutlet public var checkbox: Checkbox!
+  var currentTask: Task?
+  public var delegate: TaskUpdatedDelegate?
   
   public func configureForTask(task: Task) {
+    currentTask = task
     titleLabel.text = task.title
     notesLabel.text = task.notes
     configureForDoneState(task.done)
   }
-  
+    
+    public override func prepareForReuse() {
+        super.prepareForReuse()
+        currentTask = nil
+        delegate = nil
+    }
+    
   func configureForDoneState(done: Bool) {
     checkbox.isChecked = done
     if done {
@@ -35,7 +44,9 @@ public class TaskTableViewCell: UITableViewCell {
   
   @IBAction func tappedCheckbox() {
     configureForDoneState(!checkbox.isChecked)
-    
-    //TODO: Actually mark task done
+    if let task = currentTask {
+        task.done = checkbox.isChecked
+        delegate?.taskUpdated(task)
+    }
   }
 }
